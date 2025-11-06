@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Redirect admin-panel to admin
+RewriteRule ^admin-panel/(.*)$ admin/$1 [R=301,L]
+
+# Remove .php extension
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php [L]

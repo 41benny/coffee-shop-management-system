@@ -31,7 +31,7 @@ if (
 
     // Define the base URL for the local environment (supports subfolder or vhost)
     define("url", $scheme . "://" . $host . $basePath);
-    define("ADMINURL", url . "/admin-panel");
+    define("ADMINURL", url . "/admin");
 } else {
     // Live database settings
     $env_file = $_SERVER['DOCUMENT_ROOT'] . '/.env';
@@ -51,7 +51,7 @@ if (
 
     // Define the base URL for the live environment (supports subfolder installs)
     define("url", $scheme . "://" . $_SERVER['HTTP_HOST'] . $basePath);
-    define("ADMINURL", url . "/admin-panel");
+    define("ADMINURL", url . "/admin");
 }
 
 // Create a connection to the MySQL database
