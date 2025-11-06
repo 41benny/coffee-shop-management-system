@@ -46,6 +46,9 @@ require_once __DIR__ . '/../../config/config.php'; // Include the configuration 
                             <li class="nav-item">
                                 <a class="nav-link" href="<?php echo ADMINURL; ?>/bookings-admins/show-bookings.php" style="margin-left: 20px;">Bookings</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="<?php echo ADMINURL; ?>/pages-admins/show-pages.php" style="margin-left: 20px;">Pages</a>
+                            </li>
                         </ul>
                     <?php  } ?>
                     <ul class="navbar-nav ml-md-auto d-md-flex">

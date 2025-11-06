@@ -1,4 +1,48 @@
-<?php require_once "includes/header.php"; ?>
+<?php
+ require_once "includes/header.php";
+ 
+ // Default content (original static copy)
+ $default_title = 'Our Story';
+ $default_content = '<p>
+   On her way she met a copy. The copy warned the Little Blind Text,
+   that where it came from it would have been rewritten a thousand
+   times and everything that was left from its origin would be the
+   word "and" and the Little Blind Text should turn around and return
+   to its own, safe country. But nothing the copy said could convince
+   her and so it didn\'t take long until a few insidious Copy Writers
+   ambushed her, made her drunk with Longe and Parole and dragged her
+   into their agency, where they abused her for their.
+ </p>';
+ $default_image = 'images/about.jpg';
+ 
+ $page_title = $default_title;
+ $page_content = $default_content;
+ $page_image = $default_image;
+ 
+ // Try to use CMS content if table exists
+ $tableExists = false;
+ if ($conn) {
+   $check = mysqli_query($conn, "SHOW TABLES LIKE 'cms_pages'");
+   if ($check && mysqli_num_rows($check) > 0) {
+     $tableExists = true;
+   }
+ }
+ 
+ if ($tableExists) {
+   if ($stmt = $conn->prepare("SELECT slug, title, content_html, image FROM cms_pages WHERE slug = ? AND status = 'published' LIMIT 1")) {
+     $slug = 'about';
+     $stmt->bind_param("s", $slug);
+     $stmt->execute();
+     $result = $stmt->get_result();
+     if ($result && ($row = $result->fetch_assoc())) {
+       $page_title = !empty($row['title']) ? $row['title'] : $default_title;
+       $page_content = !empty($row['content_html']) ? $row['content_html'] : $default_content;
+       $page_image = !empty($row['image']) ? ('images/' . $row['image']) : $default_image;
+     }
+     $stmt->close();
+   }
+ }
+ ?>
 
 <section class="home-slider owl-carousel">
   <div class="slider-item" style="background-image: url(images/bg_3.jpg)" data-stellar-background-ratio="0.5">
@@ -17,27 +61,18 @@
   </div>
 </section>
 
-<section class="ftco-about d-md-flex">
-  <div class="one-half img" style="background-image: url(images/about.jpg)"></div>
-  <div class="one-half ftco-animate">
-    <div class="overlap">
-      <div class="heading-section ftco-animate">
-        <span class="subheading">Discover</span>
-        <h2 class="mb-4">Our Story</h2>
-      </div>
-      <div>
-        <p>
-          On her way she met a copy. The copy warned the Little Blind Text,
-          that where it came from it would have been rewritten a thousand
-          times and everything that was left from its origin would be the
-          word "and" and the Little Blind Text should turn around and return
-          to its own, safe country. But nothing the copy said could convince
-          her and so it didn't take long until a few insidious Copy Writers
-          ambushed her, made her drunk with Longe and Parole and dragged her
-          into their agency, where they abused her for their.
-        </p>
-      </div>
-    </div>
+  <section class="ftco-about d-md-flex">
+   <div class="one-half img" style="background-image: url(<?php echo $page_image; ?>);"></div>
+   <div class="one-half ftco-animate">
+     <div class="overlap">
+       <div class="heading-section ftco-animate">
+         <span class="subheading">Discover</span>
+         <h2 class="mb-4"><?php echo $page_title; ?></h2>
+       </div>
+       <div>
+         <?php echo $page_content; ?>
+       </div>
+     </div>
   </div>
 </section>
 

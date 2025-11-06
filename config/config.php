@@ -1,15 +1,37 @@
 <?php
-// Check if running on a local development environment
-if ($_SERVER['HTTP_HOST'] === 'localhost') {
-    // Local database settings (for XAMPP/MAMP)
-    $server_name = "localhost";
-    $user_name = "root";  // Default XAMPP user
-    $password = "";       // Default XAMPP password (empty)
-    $db_name = "ns_coffee"; // Your local database name
+// Determine scheme and host
+$host = $_SERVER['HTTP_HOST'] ?? '';
+$serverName = $_SERVER['SERVER_NAME'] ?? '';
+$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 
-    // Define the base URL for the local environment
-    define("url", "http://localhost/workspace/coffee-shop-management-system");
-    define("ADMINURL", "http://localhost/workspace/coffee-shop-management-system/admin-panel");
+// Compute base path relative to document root (handles subfolder installs like localhost/project)
+$documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'])) : '';
+$projectRoot = str_replace('\\', '/', realpath(__DIR__ . '/..'));
+$basePath = '';
+if ($documentRoot && $projectRoot && $documentRoot !== $projectRoot) {
+    $relative = str_replace($documentRoot, '', $projectRoot);
+    $basePath = '/' . trim($relative, '/');
+}
+
+// Check if running on a local development environment (supports localhost with ports and 127.0.0.1)
+if (
+    strpos($host, 'localhost') !== false ||
+    strpos($host, '127.0.0.1') !== false ||
+    $serverName === 'localhost' ||
+    // Laragon & local dev common TLDs
+    preg_match('/\.(test|local|localhost)$/i', $host) === 1 ||
+    // Detect Laragon folder layout
+    (isset($_SERVER['DOCUMENT_ROOT']) && stripos($_SERVER['DOCUMENT_ROOT'], 'laragon') !== false)
+) {
+    // Local database settings (Laragon/XAMPP/MAMP)
+    $server_name = "localhost";
+    $user_name = "root";  // Default local user
+    $password = "";       // Default local password (empty)
+    $db_name = "ns_coffee"; // Local database name
+
+    // Define the base URL for the local environment (supports subfolder or vhost)
+    define("url", $scheme . "://" . $host . $basePath);
+    define("ADMINURL", url . "/admin-panel");
 } else {
     // Live database settings
     $env_file = $_SERVER['DOCUMENT_ROOT'] . '/.env';
@@ -27,9 +49,9 @@ if ($_SERVER['HTTP_HOST'] === 'localhost') {
     $password = $env['DB_PASS'] ?? '';
     $db_name = $env['DB_NAME'] ?? '';
 
-    // Define the base URL for the live environment
-    define("url", "https://" . $_SERVER['HTTP_HOST']);
-    define("ADMINURL", "https://" . $_SERVER['HTTP_HOST'] . "/admin-panel");
+    // Define the base URL for the live environment (supports subfolder installs)
+    define("url", $scheme . "://" . $_SERVER['HTTP_HOST'] . $basePath);
+    define("ADMINURL", url . "/admin-panel");
 }
 
 // Create a connection to the MySQL database
